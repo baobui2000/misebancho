@@ -1,23 +1,19 @@
-import { NextRequest } from "next/server";
-import { addClient, removeClient } from "../../lib/sse";
+const clients = new Set<ReadableStreamDefaultController>();
 
-export const runtime = "edge";
+export function addClient(controller: ReadableStreamDefaultController) {
+  clients.add(controller);
+}
 
-export async function GET(req: NextRequest) {
-  const stream = new ReadableStream({
-    start(controller) {
-      addClient(controller);
-      req.signal.addEventListener("abort", () => {
-        removeClient(controller);
-      });
-    },
-  });
+export function removeClient(controller: ReadableStreamDefaultController) {
+  clients.delete(controller);
+}
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
-  });
+interface SSEData {
+  type: "add" | "remove" | "clear";
+  name?: string;
+}
+
+export function sendEventToAll(data: SSEData) {
+  const message = `data: ${JSON.stringify(data)}\n\n`;
+  clients.forEach((client) => client.enqueue(message));
 }

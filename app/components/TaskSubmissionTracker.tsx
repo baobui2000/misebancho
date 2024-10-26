@@ -22,6 +22,7 @@ export default function TaskSubmissionTracker() {
       }
     };
 
+    // Fetch initial data
     fetch("/api/submissions")
       .then((response) => response.json())
       .then((data) => {
@@ -54,12 +55,12 @@ export default function TaskSubmissionTracker() {
             key={name}
             className="flex items-center justify-between bg-white p-3 rounded shadow"
           >
-            <span className="text-red-600 text-2xl font-bold">{name}</span>
+            <span>{name}</span>
             <button
               onClick={() => handleSubmission(name)}
               className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
             >
-              確認
+              Confirm Submission
             </button>
           </li>
         ))}
